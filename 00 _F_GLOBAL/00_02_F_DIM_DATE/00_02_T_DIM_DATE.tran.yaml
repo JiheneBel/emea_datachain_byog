@@ -1,0 +1,107 @@
+type: "transformation"
+version: "1.0"
+pipeline:
+  components:
+    DIM_DATE:
+      type: "table-input"
+      parameters:
+        componentName: "DIM_DATE"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "DIM_DATE"
+        columnNames:
+        - "Date"
+        - "Year"
+        - "Semester"
+        - "Quarter"
+        - "Month"
+        - "Week"
+        - "Day"
+        - "Weekdaynumber"
+        - "Weekdayname"
+        - "Monthlastdaydate"
+        - "Weekfirstdaydate"
+        - "Yearsemester"
+        - "Yearquarter"
+        - "Yearmonth"
+        - "Yearweek"
+        - "Yoydate"
+        - "Yoysemester"
+        - "Yoyquarter"
+        - "Yoymonth"
+        - "Yoyweek"
+        - "Wowdate"
+        - "Wowweek"
+        - "Weekdaynamenumber"
+        timeOffset: ""
+    DIM_DATE 0:
+      type: "table-output"
+      sources:
+      - "DIM_DATE"
+      parameters:
+        componentName: "DIM_DATE 0"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "ODS"
+        targetTable: "DIM_DATE"
+        fixDataTypeMismatches: "No"
+        columnMapping:
+        - - "Date"
+          - "DATE"
+        - - "Year"
+          - "YEAR"
+        - - "Semester"
+          - "SEMESTER"
+        - - "Quarter"
+          - "QUARTER"
+        - - "Month"
+          - "MONTH"
+        - - "Week"
+          - "WEEK"
+        - - "Day"
+          - "DAY"
+        - - "Weekdaynumber"
+          - "WEEK_DAY_NUMBER"
+        - - "Weekdayname"
+          - "WEEK_DAY_NAME"
+        - - "Weekdaynamenumber"
+          - "WEEK_DAY_NAME_NUMBER"
+        - - "Monthlastdaydate"
+          - "MONTH_LAST_DAY_DATE"
+        - - "Weekfirstdaydate"
+          - "WEEK_FIRST_DAY_DATE"
+        - - "Yearsemester"
+          - "YEAR_SEMESTER"
+        - - "Yearquarter"
+          - "YEAR_QUARTER"
+        - - "Yearmonth"
+          - "YEAR_MONTH"
+        - - "Yearweek"
+          - "YEAR_WEEK"
+        - - "Yoydate"
+          - "YOY_DATE"
+        - - "Yoysemester"
+          - "YOY_SEMESTER"
+        - - "Yoyquarter"
+          - "YOY_QUARTER"
+        - - "Yoymonth"
+          - "YOY_MONTH"
+        - - "Yoyweek"
+          - "YOY_WEEK"
+        - - "Wowdate"
+          - "WOW_DATE"
+        - - "Wowweek"
+          - "WOW_WEEK"
+        outputMode: "Append"
+design:
+  components:
+    DIM_DATE:
+      position:
+        x: 320
+        "y": 250
+      tempMetlId: 73642
+    DIM_DATE 0:
+      position:
+        x: 698
+        "y": 262
+      tempMetlId: 73645

@@ -1,0 +1,42 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    "00_O_GLOBAL 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "Bash Script 0"
+      parameters:
+        componentName: "00_O_GLOBAL 0"
+        orchestrationJob: "00 _F_GLOBAL/00_00_F_GLOBAL/00_O_GLOBAL"
+        setScalarVariables:
+        setGridVariables:
+    Start 0:
+      type: "start"
+      transitions:
+        unconditional:
+        - "00_O_GLOBAL 0"
+      parameters:
+        componentName: "Start 0"
+    Bash Script 0:
+      type: "unknown-orchestration"
+      parameters:
+        "1": "Bash Script 0"
+design:
+  components:
+    "00_O_GLOBAL 0":
+      position:
+        x: 160
+        "y": 0
+      tempMetlId: 73628
+    Start 0:
+      position:
+        x: 0
+        "y": 0
+      tempMetlId: 73629
+    Bash Script 0:
+      position:
+        x: 320
+        "y": 0
+      tempMetlId: 73631
