@@ -1,0 +1,163 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    create table ODS:
+      type: "sql-script"
+      transitions:
+        success:
+        - "Grid Iterator 0"
+      skipped: false
+      parameters:
+        componentName: "create table ODS"
+        sqlScript: "CREATE TABLE  \"ODS\".\"PUSHMOBILE\" IF NOT EXISTS (\n\"PUSHMOBILEEVENTID\"\
+          \ NUMBER(38, 0)  autoincrement(1,1),\n    \"AppName\" VARCHAR ,\n    \"\
+          MessageName\" VARCHAR ,\n    \"MessageID\" VARCHAR ,\n    \"Campaigns\"\
+          \ VARCHAR ,\n   \"DeviceId\" varchar ,\n   \"DateTimeSend\" varchar,\n \
+          \ \"MessageContent\" varchar ,\n  \"MessageOpened\" varchar ,\n  \"OpenDate\"\
+          \ varchar,\n  \"TimeInApp\" varchar ,\n  \"Platform\" varchar,\n  \"PlatformVersion\"\
+          \ varchar ,\n  \"Status\" varchar ,\n  \"ServiceResponse\" varchar,\n  \"\
+          GeofenceName\" varchar,\n  \"Template\" varchar,\n  \"Format\" varchar,\n\
+          \  \"PageName\" varchar ,\n  \"PushJobId\" varchar,\n  \"SystemToken\" varchar,\n\
+          \  \"InboxMessageDownloaded\" varchar,\n  \"InboxMessageOpened\" varchar,\n\
+          \  \"IosMediaUrl\" varchar ,\n  \"AndroidMediaUrl\" varchar ,\n  \"MediaAlt\"\
+          \ varchar ,\n  \"ContactKey\" varchar ,\n  \"RequestId\" varchar \n);\n\n\
+          --ALTER TABLE  \"ODS\".\"PUSHMOBILE\" ADD COLUMN  HASH_ID varchar ;\n--ALTER\
+          \ TABLE  \"ODS\".\"PUSHMOBILE\" ADD COLUMN  \"RequestId\" varchar ;\n--ALTER\
+          \ TABLE  \"ODS\".\"PUSHMOBILE\" ADD COLUMN  serviceresponse varchar; \n"
+    "04_06_O_02_PUSHMOBILE 0":
+      type: "run-orchestration"
+      skipped: false
+      parameters:
+        componentName: "04_06_O_02_PUSHMOBILE 0"
+        orchestrationJob: "00 _F_GLOBAL/04_F_MARKETING_CLOUD/04_06_F_PUSHMOBILE_AUTOMATION/04_06_O_02_PUSHMOBILE"
+        setScalarVariables:
+        - - "v_host_2"
+          - "${v_host_1}"
+        - - "v_pwd_2"
+          - "${v_pwd_1}"
+        - - "v_user_2"
+          - "${v_user_1}"
+        setGridVariables:
+    Start 0:
+      type: "start"
+      transitions:
+        unconditional:
+        - "create table STG"
+      skipped: false
+      parameters:
+        componentName: "Start 0"
+    create table STG:
+      type: "sql-script"
+      transitions:
+        success:
+        - "create table ODS"
+      skipped: false
+      parameters:
+        componentName: "create table STG"
+        sqlScript: "CREATE  OR REPLACE TABLE \"STG\".\"PUSHMOBILE_AUTOMATION\"(\n\
+          \  HASH_ID varchar ,\n\t\"AppName\" VARCHAR ,\n    \"MessageName\" VARCHAR\
+          \ ,\n    \"MessageID\" VARCHAR ,\n    \"Campaigns\" VARCHAR ,\n   \"DeviceId\"\
+          \ varchar ,\n   \"DateTimeSend\" varchar,\n  \"MessageContent\" varchar\
+          \ ,\n  \"MessageOpened\" varchar ,\n  \"OpenDate\" varchar,\n  \"TimeInApp\"\
+          \ varchar ,\n  \"Platform\" varchar,\n  \"PlatformVersion\" varchar ,\n\
+          \  \"Status\" varchar ,\n  \"ServiceResponse\" varchar,\n  \"GeofenceName\"\
+          \ varchar,\n  \"Template\" varchar,\n  \"Format\" varchar,\n  \"PageName\"\
+          \ varchar ,\n  \"PushJobId\" varchar,\n  \"SystemToken\" varchar,\n  \"\
+          InboxMessageDownloaded\" varchar,\n  \"InboxMessageOpened\" varchar,\n \
+          \ \"IosMediaUrl\" varchar ,\n  \"AndroidMediaUrl\" varchar ,\n  \"MediaAlt\"\
+          \ varchar ,\n  \"ContactKey\" varchar ,\n  \"RequestId\" varchar \n)"
+    Grid Iterator 0:
+      type: "grid-iterator"
+      iterationTarget: "04_06_O_02_PUSHMOBILE 0"
+      skipped: false
+      parameters:
+        componentName: "Grid Iterator 0"
+        gridVariable: "g_client_1"
+        gridIteratorVariableMapping:
+        - - "username"
+          - "v_user_1"
+        - - "host"
+          - "v_host_1"
+        - - "pwd"
+          - "v_pwd_1"
+        breakOnFailure: "No"
+        concurrency: "Sequential"
+  variables:
+    v_user_1:
+      metadata:
+        type: "TEXT"
+        description: ""
+        scope: "SHARED"
+        visibility: "PUBLIC"
+      defaultValue: ""
+    v_host_1:
+      metadata:
+        type: "TEXT"
+        description: ""
+        scope: "SHARED"
+        visibility: "PUBLIC"
+      defaultValue: ""
+    v_pwd_1:
+      metadata:
+        type: "TEXT"
+        description: ""
+        scope: "SHARED"
+        visibility: "PUBLIC"
+      defaultValue: ""
+    g_client_1:
+      metadata:
+        type: "GRID"
+        description: ""
+        scope: "COPIED"
+        visibility: "PUBLIC"
+        columns:
+          username:
+            columnType: "TEXT"
+          host:
+            columnType: "TEXT"
+          pwd:
+            columnType: "TEXT"
+      defaultValue:
+      - - "500009062"
+        - "mc5ldfxc5q-d6dlpzy39mq1y0vhq.ftp.marketingcloudops.com"
+        - "N6mhX!tDs9aff12"
+design:
+  components:
+    create table ODS:
+      position:
+        x: -128
+        "y": 16
+      tempMetlId: 57763
+    "04_06_O_02_PUSHMOBILE 0":
+      position:
+        x: 160
+        "y": 48
+      tempMetlId: 57764
+    Start 0:
+      position:
+        x: -528
+        "y": 16
+      tempMetlId: 57765
+    create table STG:
+      position:
+        x: -336
+        "y": 16
+      tempMetlId: 57766
+    Grid Iterator 0:
+      position:
+        x: 160
+        "y": 16
+      tempMetlId: 57767
+  notes:
+    "57762":
+      position:
+        x: -555
+        "y": -112
+      size:
+        height: 80
+        width: 742
+      theme: "red"
+      content: |
+        Pour l'ex��cuter la premi��re fois en prod  :
+        faut d��commenter les lignes pour ajouter les 3 colonnes manquantes dans le composant   **create table ods**

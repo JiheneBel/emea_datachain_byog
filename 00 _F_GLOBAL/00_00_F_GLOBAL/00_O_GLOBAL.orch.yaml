@@ -1,0 +1,801 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    Start 0:
+      type: "start"
+      transitions:
+        unconditional:
+        - "Enlarge Warehouse"
+      skipped: false
+      parameters:
+        componentName: "Start 0"
+    Suspend Warehouse:
+      type: "alter-warehouse"
+      skipped: false
+      parameters:
+        componentName: "Suspend Warehouse"
+        warehouse: "[Environment Default]"
+        commandType: "Suspend"
+    COMPARE_SCHEMA:
+      type: "run-orchestration"
+      transitions:
+        success:
+        - "NUMBER_OF_DAYS"
+        failure:
+        - "Or 3"
+      skipped: false
+      parameters:
+        componentName: "COMPARE_SCHEMA"
+        orchestrationJob: "02_F_SALESFORCE/02_000_COMPARE_SCHEMA/02_000_O_01_COMPARE_SCHEMA"
+        setScalarVariables:
+        setGridVariables:
+    NUMBER_OF_DAYS:
+      type: "run-orchestration"
+      transitions:
+        success:
+        - "NUMBER_OF_DAYS_SATURDAY"
+        failure:
+        - "Or 3"
+      skipped: false
+      parameters:
+        componentName: "NUMBER_OF_DAYS"
+        orchestrationJob: "Number"
+        setScalarVariables:
+        setGridVariables:
+    Enlarge Warehouse:
+      type: "alter-warehouse"
+      transitions:
+        unconditional:
+        - "00_01_O_CHANGE_PASSWORD 0"
+      skipped: false
+      parameters:
+        componentName: "Enlarge Warehouse"
+        warehouse: "[Environment Default]"
+        commandType: "Set"
+        properties:
+        - - "WAREHOUSE_SIZE"
+          - "SMALL"
+    Grant select to roles:
+      type: "sql-script"
+      transitions:
+        unconditional:
+        - "Alter Warehouse 0"
+      skipped: false
+      parameters:
+        componentName: "Grant select to roles"
+        sqlScript: |+
+          -- grant select to ods tables
+          grant select on all tables in schema ${Database}."ODS" to role data;
+          grant select on all tables in schema ${Database}."ODS" to role reporting;
+
+
+          -- grant select to ods views
+          grant select on all views in schema ${Database}."ODS" to role reporting;
+          grant select on all views in schema ${Database}."ODS" to role data;
+
+
+          -- revoke select on "ODS_PROD"."ODS"."tmp_xdatequalite_VI" from role reporting;
+          -- revoke select on "ODS_PROD"."ODS"."TELEPHONY_DETAILS" from role reporting;
+
+
+          -- revoke select on "ODS_PROD"."ODS"."tmp_xdatequalite_VI" from role data;
+          -- revoke select on "ODS_PROD"."ODS"."TELEPHONY_DETAILS" from role data;
+
+    Or 3:
+      type: "or"
+      skipped: false
+      parameters:
+        componentName: "Or 3"
+    "11_01_O_SEGMENTATION":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "22_01_O_SCORE_DS 0"
+      skipped: true
+      parameters:
+        componentName: "11_01_O_SEGMENTATION"
+        orchestrationJob: "11_F_SEGMENTATION/11_01_O_SEGMENTATION"
+        setScalarVariables:
+        setGridVariables:
+    "14_01_O_COMMISSION_RULES":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "21_01_O_01_CONTENT_LIBRARY 0"
+      skipped: false
+      parameters:
+        componentName: "14_01_O_COMMISSION_RULES"
+        orchestrationJob: "14_F_COMMISSION_RULES/14_01_O_COMMISSION_RULES"
+        setScalarVariables:
+        setGridVariables:
+    "12_01_O_OPENING_HOURS":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "14_01_O_COMMISSION_RULES"
+      skipped: false
+      parameters:
+        componentName: "12_01_O_OPENING_HOURS"
+        orchestrationJob: "12_F_OPENING_HOURS/12_01_O_OPENING_HOURS"
+        setScalarVariables:
+        setGridVariables:
+    Or 2:
+      type: "or"
+      skipped: false
+      parameters:
+        componentName: "Or 2"
+    NUMBER_OF_DAYS_SATURDAY:
+      type: "run-orchestration"
+      transitions:
+        success:
+        - "33_01_WELCOME_CALL"
+        failure:
+        - "Or 3"
+      skipped: false
+      parameters:
+        componentName: "NUMBER_OF_DAYS_SATURDAY"
+        orchestrationJob: "02_002_O_01_NUMBER_OF_DAYS_SATURDAY"
+        setScalarVariables:
+        setGridVariables:
+    "00_01_O_CHANGE_PASSWORD 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "00_03_O_CONFIG 0"
+      skipped: false
+      parameters:
+        componentName: "00_01_O_CHANGE_PASSWORD 0"
+        orchestrationJob: "00 _F_GLOBAL/00_01_F_SNOWFLAKE/00_01_O_CHANGE_PASSWORD"
+        setScalarVariables:
+        setGridVariables:
+    "20_01_O_TELEPHONY 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "20_02_AGENTSTATUS 0"
+      skipped: false
+      parameters:
+        componentName: "20_01_O_TELEPHONY 0"
+        orchestrationJob: "20_F_TELEPHONY/20_01_CALLS/20_01_O_TELEPHONY"
+        setScalarVariables:
+        setGridVariables:
+    "20_02_AGENTSTATUS 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "And 0"
+      skipped: false
+      parameters:
+        componentName: "20_02_AGENTSTATUS 0"
+        orchestrationJob: "20_F_TELEPHONY/20_02_AGENTSTATUS/20_02_AGENTSTATUS"
+        setScalarVariables:
+        setGridVariables:
+    "22_01_O_SCORE_DS 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "23_00_O_UUID"
+        - "22_03_O_SCORE_HYUNDAI 0"
+      skipped: true
+      parameters:
+        componentName: "22_01_O_SCORE_DS 0"
+        orchestrationJob: "22_F_SCORE_DS/DS/22_01_O_SCORE_DS"
+        setScalarVariables:
+        setGridVariables:
+    "08_02_O_01_AT_INTERNET 0":
+      type: "run-orchestration"
+      skipped: false
+      parameters:
+        componentName: "08_02_O_01_AT_INTERNET 0"
+        orchestrationJob: "08_F_AT_INTERNET/08_02_F_AT_INTERNET/08_02_O_01_AT_INTERNET"
+        setScalarVariables:
+        setGridVariables:
+    "02_17_O_02_LIVECHAT_BUTTON_CONF 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "18_05_O_01_TALKDESK"
+      skipped: false
+      parameters:
+        componentName: "02_17_O_02_LIVECHAT_BUTTON_CONF 0"
+        orchestrationJob: "02_F_SALESFORCE/02_17_LIVECHAT_BUTTON/02_17_O_02_LIVECHAT_BUTTON_CONF"
+        setScalarVariables:
+        setGridVariables:
+    "23_00_O_UUID":
+      type: "run-orchestration"
+      skipped: true
+      parameters:
+        componentName: "23_00_O_UUID"
+        orchestrationJob: "23_F_UUID/23_00_O_UUID"
+        setScalarVariables:
+        setGridVariables:
+    Alter Warehouse 0:
+      type: "alter-warehouse"
+      transitions:
+        unconditional:
+        - "Suspend Warehouse"
+      skipped: false
+      parameters:
+        componentName: "Alter Warehouse 0"
+        warehouse: "[Environment Default]"
+        commandType: "Set"
+        properties:
+        - - "WAREHOUSE_SIZE"
+          - "XSMALL"
+    MARKETING_CLOUD_SMS:
+      type: "run-orchestration"
+      transitions:
+        failure:
+        - "Or 2"
+      skipped: false
+      parameters:
+        componentName: "MARKETING_CLOUD_SMS"
+        orchestrationJob: "04_F_MARKETING_CLOUD/04_03_SMS/04_03_O_01_MARKETING_CLOUD_SMS"
+        setScalarVariables:
+        setGridVariables:
+    "02_O_01_SALESFORCE 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "02_17_O_02_LIVECHAT_BUTTON_CONF 0"
+      skipped: false
+      parameters:
+        componentName: "02_O_01_SALESFORCE 0"
+        orchestrationJob: "02_F_SALESFORCE/02_O_01_SALESFORCE"
+        setScalarVariables:
+        setGridVariables:
+    MARKETING_CLOUD_PUSHMOBILE:
+      type: "run-orchestration"
+      transitions:
+        failure:
+        - "Or 2"
+        unconditional:
+        - "MARKETING_CLOUD_SMS"
+      skipped: false
+      parameters:
+        componentName: "MARKETING_CLOUD_PUSHMOBILE"
+        orchestrationJob: "04_F_MARKETING_CLOUD/04_02_F_PUSHMOBILE/04_02_O_01_MARKETING_CLOUD_PUSHMOBILE"
+        setScalarVariables:
+        setGridVariables:
+    MARKETING_CLOUD_EMAILS:
+      type: "run-orchestration"
+      transitions:
+        failure:
+        - "Or 2"
+        unconditional:
+        - "MARKETING_CLOUD_PUSHMOBILE"
+      skipped: false
+      parameters:
+        componentName: "MARKETING_CLOUD_EMAILS"
+        orchestrationJob: "04_F_MARKETING_CLOUD/04_01_F_EMAILS/04_01_O_01_MARKETING_CLOUD_EMAILS"
+        setScalarVariables:
+        setGridVariables:
+    "09_02_VIEWS_TO_TABLES 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "replication us base"
+      skipped: false
+      parameters:
+        componentName: "09_02_VIEWS_TO_TABLES 0"
+        orchestrationJob: "09_F_VIEWS/09_02_VIEWS_TO_TABLES"
+        setScalarVariables:
+        setGridVariables:
+    "10_O_MONITORING 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "Grant select to roles"
+      skipped: false
+      parameters:
+        componentName: "10_O_MONITORING 0"
+        orchestrationJob: "10_F_MONITORING/10_O_MONITORING"
+        setScalarVariables:
+        setGridVariables:
+    "00_03_O_CONFIG 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "02_O_01_SALESFORCE 0"
+      skipped: false
+      parameters:
+        componentName: "00_03_O_CONFIG 0"
+        orchestrationJob: "00 _F_GLOBAL/00_03_F_CONFIG/00_03_O_CONFIG"
+        setScalarVariables:
+        setGridVariables:
+    "18_04_O_01_TALKDESK_NDM":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "20_01_O_TELEPHONY 0"
+      skipped: false
+      parameters:
+        componentName: "18_04_O_01_TALKDESK_NDM"
+        orchestrationJob: "18_F_TALKDESK/18_04_NEW_DATA_MODEL/18_04_O_01_NDM"
+        setScalarVariables:
+        setGridVariables:
+    "36_O_01_THOUGHTSPOT":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "10_O_MONITORING 0"
+      skipped: false
+      parameters:
+        componentName: "36_O_01_THOUGHTSPOT"
+        orchestrationJob: "36_F_THOUGHTSPOT/36_O_01_THOUGHTSPOT"
+        setScalarVariables:
+        setGridVariables:
+    replication us base:
+      type: "sql-script"
+      transitions:
+        unconditional:
+        - "36_O_01_THOUGHTSPOT"
+      skipped: false
+      parameters:
+        componentName: "replication us base"
+        sqlScript: "ALTER DATABASE CLONE_ODS_US_PROD REFRESH;"
+    "33_01_WELCOME_CALL":
+      type: "run-orchestration"
+      skipped: false
+      parameters:
+        componentName: "33_01_WELCOME_CALL"
+        orchestrationJob: "33_WELCOME_CALL/33_01_WELCOME_CALL"
+        setScalarVariables:
+        setGridVariables:
+    SURVEY_SENT:
+      type: "run-orchestration"
+      transitions:
+        failure:
+        - "Or 2"
+        unconditional:
+        - "OPTIN_SOURCES"
+      skipped: false
+      parameters:
+        componentName: "SURVEY_SENT"
+        orchestrationJob: "04_F_MARKETING_CLOUD/04_04_F_SURVEY_SENT/04_04_O_01_SURVEY_SENT"
+        setScalarVariables:
+        setGridVariables:
+    "18_05_O_01_TALKDESK":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "18_04_O_01_TALKDESK_NDM"
+      skipped: false
+      parameters:
+        componentName: "18_05_O_01_TALKDESK"
+        orchestrationJob: "18_F_TALKDESK/18_05_CALLS_EXPLORE/18_05_O_01_TALKDESK"
+        setScalarVariables:
+        setGridVariables:
+    R_CONFIG_RIGHTS:
+      type: "sql-script"
+      transitions:
+        unconditional:
+        - "09_02_VIEWS_TO_TABLES 0"
+      skipped: false
+      parameters:
+        componentName: "R_CONFIG_RIGHTS"
+        sqlScript: "create or replace table ODS.R_Config_Rights\n(\nID_RIGHTS_ACCOUNT\t\
+          INTEGER,\nSECURITY_ACCOUNT_NAME\tSTRING,\nSECURITY_ACCOUNT_ID\tSTRING,\n\
+          USER STRING\n)\n;\n\n\ninsert overwrite into \"ODS\".\"R_CONFIG_RIGHTS\"\
+          \nvalues\n('1','VISA EUROPE \\/ EUROPE','0010O000026LhU6QAK','wadgen@visa.com'),\n\
+          ('2','VISA EUROPE \\/ EUROPE','0010O000026LhU6QAK','hamiltok@visa.com'),\n\
+          ('3','VISA EUROPE \\/ EUROPE','0010O000026LhU6QAK','test_visaeurope'),\n\
+          ('4','ORANGE','0010O00002EN2WXQA1','joran.cappuccio@orange.com'),\n('5','ORANGE','0010O00002EN2WXQA1','test_orange'),\n\
+          ('6','TOYOTA FINANCIAL SERVICES','0019E00000vhVPMQA2','arturo.campo@toyota-fs.com'),\n\
+          ('7','TOYOTA FINANCIAL SERVICES','0019E00000vhVPMQA2','test_toyotafs'),\n\
+          ('8','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','seifc@visa.com'),\n\
+          ('9','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','test_visainfinitefrance'),\n\
+          ('10','DIAC / NISSAN','0010O00002J30g4QAB','test_diacnissan'),\n('11','ACCOR\
+          \ CLUB PRIVATE ONE','0010O00002EN2WiQAL','test_accorclubone'),\n('12','VISA\
+          \ EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','seifc@visa.com'),\n\
+          ('13','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','seifc@visa.com'),\n\
+          ('14','BNPP Accor','0010X000053BK3KQAW','test_bnnpaccor'),\n('15','VISA\
+          \ EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','test_visafrance'),\n\
+          ('16','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','test_visafrance'),\n\
+          ('17','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','test_visafrance'),\n\
+          ('18','ACCORHOTELS BIENVENUE CBO','0010X00004WJ67jQAD','amance.damitio@accor.com'),\n\
+          ('19','ACCORHOTELS BIENVENUE COLLABORATEUR','0010O00002J30gDQAR','amance.damitio@accor.com'),\n\
+          ('20','ACCORHOTELS BIENVENUE CBO','0010X00004WJ67jQAD','test_accorhotels'),\n\
+          ('21','ACCORHOTELS BIENVENUE COLLABORATEUR','0010O00002J30gDQAR','test_accorhotels'),\n\
+          ('22','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','parisgw@visa.com'),\n\
+          ('23','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','parisgw@visa.com'),\n\
+          ('24','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','parisgw@visa.com'),\n\
+          ('25','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','genetann@visa.com'),\n\
+          ('26','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','genetann@visa.com'),\n\
+          ('27','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','genetann@visa.com'),\n\
+          ('28','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','robype@visa.com'),\n\
+          ('29','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','robype@visa.com'),\n\
+          ('30','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','robype@visa.com'),\n\
+          ('31','BNPP Accor','0010X000053BK3KQAW','joelle.zylberberg@bnpparibas.com'),\n\
+          ('32','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','delioni@visa.com'),\n\
+          ('33','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','delioni@visa.com'),\n\
+          ('34','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','delioni@visa.com'),\n\
+          ('35','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','kolberjo@visa.com'),\n\
+          ('36','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','kolberjo@visa.com'),\n\
+          ('37','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','kolberjo@visa.com'),\n\
+          ('38','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','walkm@visa.com'),\n\
+          ('39','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','walkm@visa.com'),\n\
+          ('40','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','walkm@visa.com'),\n\
+          ('41','BNPP Accor','0010X000053BK3KQAW','annecharlotte.dahan@externe.bnpparibas.com'),\n\
+          ('42','ACCORHOTELS BIENVENUE CBO','0010X00004WJ67jQAD','noemie.martel@accor.com'),\n\
+          ('43','ACCORHOTELS BIENVENUE COLLABORATEUR','0010O00002J30gDQAR','noemie.martel@accor.com'),\n\
+          ('44','VISA EUROPE \\/ EUROPE','0010O000026LhU6QAK','chrsteve@visa.com'),\n\
+          ('45','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','chrsteve@visa.com'),\n\
+          ('46','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','chrsteve@visa.com'),\n\
+          ('47','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','chrsteve@visa.com'),\n\
+          ('48','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','ksaiera@visa.com'),\n\
+          ('49','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','ksaiera@visa.com'),\n\
+          ('50','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','ksaiera@visa.com'),\n\
+          ('51','VISA EUROPE FRANCE \\/ INFINITE','0010O000021npPLQAY','jeanninb@visa.com'),\n\
+          ('52','VISA EUROPE FRANCE \\/ PLATINUM','0010O000022gJpSQAU','jeanninb@visa.com'),\n\
+          ('53','VISA EUROPE FRANCE \\/ PLATINUM BUSINESS','0010O000027gCQxQAM','jeanninb@visa.com'),\n\
+          ('54','VISA EUROPE \\/ EUROPE','0010O000026LhU6QAK','sharmava@visa.com'),\n\
+          ('55','BNPP Accor','0010X000053BK3KQAW','guillaume.azuelos@externe.bnpparibas.com'),\n\
+          ('56','BNPP Accor','0010X000053BK3KQAW','metta.lay@bnpparibas.com'),\n\n\
+          /*Config right for NAM*/\n('57', 'VISA CANADA INFINITE PRIVILEGE', '001f200001wenzMAAQ',\
+          \ 'linoh@visa.com'),\n('58', 'VISA CANADA INFINITE PRIVILEGE', '001f200001wenzMAAQ',\
+          \ 'jaolivar@visa.com'),\n('59', 'VISA CANADA INFINITE PRIVILEGE', '001f200001wenzMAAQ',\
+          \ 'test_visacanada'),\n('60', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF',\
+          \ 'linoh@visa.com'),\n('61', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF',\
+          \ 'jaolivar@visa.com'),\n('62', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF',\
+          \ 'test_visacanada'),\n('63', 'VISA CANADA INFINITE PRIVILEGE', '001f200001wenzMAAQ',\
+          \ 'chrsteve@visa.com'),\n('64', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF',\
+          \ 'chrsteve@visa.com'),\n('65', 'VISA EUROPE FRANCE \\/ INFINITE', '0010O000021npPLQAY',\
+          \ 'ksaiera@visa.com' ),\n('66', 'VISA EUROPE FRANCE \\/ PLATINUM', '0010O000022gJpSQAU',\
+          \ 'ksaiera@visa.com' ),\n('67', 'VISA EUROPE FRANCE \\/ PLATINUM BUSINESS',\
+          \ '0010O000027gCQxQAM', 'ksaiera@visa.com' ),\n('68', 'VISA EUROPE FRANCE\
+          \ \\/ INFINITE', '0010O000021npPLQAY', 'jeanninb@visa.com' ),\n('69', 'VISA\
+          \ EUROPE FRANCE \\/ PLATINUM', '0010O000022gJpSQAU', 'jeanninb@visa.com'\
+          \ ),\n('70', 'VISA EUROPE FRANCE \\/ PLATINUM BUSINESS', '0010O000027gCQxQAM',\
+          \ 'jeanninb@visa.com' ),\n('71', 'VISA EUROPE \\/ EUROPE', '0010O000026LhU6QAK',\
+          \ 'sharmava@visa.com' )\n\n/*old 09/11/2021\n('45', 'VISA CANADA INFINITE\
+          \ PRIVILEGE', '001f200001wenzMAAQ', 'linoh@visa.com'),\n('46', 'VISA CANADA\
+          \ INFINITE PRIVILEGE', '001f200001wenzMAAQ', 'jaolivar@visa.com'),\n('47',\
+          \ 'VISA CANADA INFINITE PRIVILEGE', '001f200001wenzMAAQ', 'test_visacanada'),\n\
+          ('48', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF', 'linoh@visa.com'),\n\
+          ('49', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF', 'jaolivar@visa.com'),\n\
+          ('50', 'VISA CANADA INFINITE', '0015x00002ByL6uAAF', 'test_visacanada')*/"
+    OPTIN_SOURCES:
+      type: "run-orchestration"
+      transitions:
+        failure:
+        - "Or 2"
+        unconditional:
+        - "MARKETING_CLOUD_EMAILS"
+      skipped: false
+      parameters:
+        componentName: "OPTIN_SOURCES"
+        orchestrationJob: "04_F_MARKETING_CLOUD/04_05_F_OPTIN_SOURCES/04_05_O_01_OPTIN_SOURCES"
+        setScalarVariables:
+        setGridVariables:
+    "21_01_O_01_CONTENT_LIBRARY 0":
+      type: "run-orchestration"
+      skipped: false
+      parameters:
+        componentName: "21_01_O_01_CONTENT_LIBRARY 0"
+        orchestrationJob: "21_F_CONTENT/21_01_F_CONTENT/21_01_O_01_CONTENT_LIBRARY"
+        setScalarVariables:
+        setGridVariables:
+    And 0:
+      type: "and"
+      transitions:
+        unconditional:
+        - "11_01_O_SEGMENTATION"
+      skipped: false
+      parameters:
+        componentName: "And 0"
+    "22_03_O_SCORE_HYUNDAI 0":
+      type: "run-orchestration"
+      transitions:
+        unconditional:
+        - "R_CONFIG_RIGHTS"
+      skipped: false
+      parameters:
+        componentName: "22_03_O_SCORE_HYUNDAI 0"
+        orchestrationJob: "22_F_SCORE_DS/Hyundai/22_03_O_SCORE_HYUNDAI"
+        setScalarVariables:
+        setGridVariables:
+  variables:
+    testtt:
+      metadata:
+        type: "TEXT"
+        description: ""
+        scope: "COPIED"
+        visibility: "PUBLIC"
+      defaultValue: ""
+    number_of_days:
+      metadata:
+        type: "NUMBER"
+        description:
+        scope: "COPIED"
+        visibility: "PUBLIC"
+      defaultValue: "1"
+    ColumnsGrid:
+      metadata:
+        type: "GRID"
+        description:
+        scope: "COPIED"
+        visibility: "PUBLIC"
+        columns:
+          ObjectName:
+            columnType: "TEXT"
+          ColumnName:
+            columnType: "TEXT"
+          ColumnType:
+            columnType: "TEXT"
+      defaultValue: []
+design:
+  components:
+    Start 0:
+      position:
+        x: -2780
+        "y": 370
+      tempMetlId: 73460
+    Suspend Warehouse:
+      position:
+        x: 656
+        "y": 1168
+      tempMetlId: 73462
+    COMPARE_SCHEMA:
+      position:
+        x: -1776
+        "y": 368
+      tempMetlId: 73463
+    NUMBER_OF_DAYS:
+      position:
+        x: -1648
+        "y": 368
+      tempMetlId: 73465
+    Enlarge Warehouse:
+      position:
+        x: -2560
+        "y": 368
+      tempMetlId: 73466
+    Grant select to roles:
+      position:
+        x: 656
+        "y": 1040
+      tempMetlId: 73467
+    Or 3:
+      position:
+        x: -1648
+        "y": 272
+      tempMetlId: 73469
+    "11_01_O_SEGMENTATION":
+      position:
+        x: 670
+        "y": 40
+      tempMetlId: 73501
+    "14_01_O_COMMISSION_RULES":
+      position:
+        x: -1440
+        "y": 832
+      tempMetlId: 73504
+    "12_01_O_OPENING_HOURS":
+      position:
+        x: -1632
+        "y": 832
+      tempMetlId: 73505
+    Or 2:
+      position:
+        x: -1504
+        "y": 576
+      tempMetlId: 73506
+    NUMBER_OF_DAYS_SATURDAY:
+      position:
+        x: -1504
+        "y": 368
+      tempMetlId: 73508
+    "00_01_O_CHANGE_PASSWORD 0":
+      position:
+        x: -2400
+        "y": 368
+      tempMetlId: 73509
+    "20_01_O_TELEPHONY 0":
+      position:
+        x: -190
+        "y": 370
+      tempMetlId: 73511
+    "20_02_AGENTSTATUS 0":
+      position:
+        x: 0
+        "y": 368
+      tempMetlId: 73512
+    "22_01_O_SCORE_DS 0":
+      position:
+        x: 670
+        "y": 240
+      tempMetlId: 73517
+    "08_02_O_01_AT_INTERNET 0":
+      position:
+        x: -2320
+        "y": 530
+      tempMetlId: 73518
+    "02_17_O_02_LIVECHAT_BUTTON_CONF 0":
+      position:
+        x: -720
+        "y": 370
+      tempMetlId: 73519
+    "23_00_O_UUID":
+      position:
+        x: 820
+        "y": 30
+      tempMetlId: 73520
+    Alter Warehouse 0:
+      position:
+        x: 656
+        "y": 1104
+      tempMetlId: 73524
+    MARKETING_CLOUD_SMS:
+      position:
+        x: -1120
+        "y": 496
+      tempMetlId: 73526
+    "02_O_01_SALESFORCE 0":
+      position:
+        x: -930
+        "y": 370
+      tempMetlId: 73527
+    MARKETING_CLOUD_PUSHMOBILE:
+      position:
+        x: -1312
+        "y": 496
+      tempMetlId: 73528
+    MARKETING_CLOUD_EMAILS:
+      position:
+        x: -1504
+        "y": 496
+      tempMetlId: 73529
+    "09_02_VIEWS_TO_TABLES 0":
+      position:
+        x: 656
+        "y": 672
+      tempMetlId: 73530
+    "10_O_MONITORING 0":
+      position:
+        x: 656
+        "y": 976
+      tempMetlId: 73531
+    "00_03_O_CONFIG 0":
+      position:
+        x: -2170
+        "y": 380
+      tempMetlId: 73538
+    "18_04_O_01_TALKDESK_NDM":
+      position:
+        x: -370
+        "y": 370
+      tempMetlId: 73539
+    "36_O_01_THOUGHTSPOT":
+      position:
+        x: 656
+        "y": 864
+      tempMetlId: 73540
+    replication us base:
+      position:
+        x: 656
+        "y": 768
+      tempMetlId: 73543
+    "33_01_WELCOME_CALL":
+      position:
+        x: -1312
+        "y": 368
+      tempMetlId: 73544
+    SURVEY_SENT:
+      position:
+        x: -1780
+        "y": 500
+      tempMetlId: 73546
+    "18_05_O_01_TALKDESK":
+      position:
+        x: -530
+        "y": 370
+      tempMetlId: 73547
+    R_CONFIG_RIGHTS:
+      position:
+        x: 656
+        "y": 576
+      tempMetlId: 73548
+    OPTIN_SOURCES:
+      position:
+        x: -1648
+        "y": 496
+      tempMetlId: 73550
+    "21_01_O_01_CONTENT_LIBRARY 0":
+      position:
+        x: -1232
+        "y": 832
+      tempMetlId: 73551
+    And 0:
+      position:
+        x: 304
+        "y": 688
+      tempMetlId: 73600
+    "22_03_O_SCORE_HYUNDAI 0":
+      position:
+        x: 840
+        "y": 240
+      tempMetlId: 699231
+  notes:
+    "73452":
+      position:
+        x: -996
+        "y": 305
+      size:
+        height: 167
+        width: 390
+      theme: "yellow"
+      content: "SALESFORCE"
+    "73453":
+      position:
+        x: -2342
+        "y": 196
+      size:
+        height: 248
+        width: 285
+      theme: "yellow"
+      content: "import all SHAREPOINT docs"
+    "73454":
+      position:
+        x: -591
+        "y": 293
+      size:
+        height: 179
+        width: 314
+      theme: "yellow"
+      content: "DONNEES TELEPHONIE TALKDESK"
+    "73455":
+      position:
+        x: -1911
+        "y": 234
+      size:
+        height: 171
+        width: 229
+      theme: "yellow"
+      content: "COMPARE_SCHEMA"
+    "73456":
+      position:
+        x: 760
+        "y": 220
+      size:
+        height: 79
+        width: 375
+      theme: "red"
+      content: "TOUJOURS D'ACTUALITES ?"
+    "73457":
+      position:
+        x: -263
+        "y": 289
+      size:
+        height: 184
+        width: 338
+      theme: "yellow"
+      content: "TABLES AGREGEES de TALKDESK"
+    "73458":
+      position:
+        x: 458
+        "y": 819
+      size:
+        height: 93
+        width: 293
+      theme: "yellow"
+      content: "THOUGHTSPOT REPORTING"
+    "73459":
+      position:
+        x: -1301
+        "y": 759
+      size:
+        height: 256
+        width: 429
+      theme: "yellow"
+      content: "JPLIB"
+    "73461":
+      position:
+        x: 491
+        "y": 539
+      size:
+        height: 87
+        width: 253
+      theme: "yellow"
+      content: "R_CONFIG_RIGHTS"

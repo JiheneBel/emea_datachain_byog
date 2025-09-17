@@ -1,0 +1,1414 @@
+type: "orchestration"
+version: "1.0"
+pipeline:
+  components:
+    Data Transfer MONITORING:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE MONITORING"
+        unconditional:
+        - "Data Transfer REPORTING"
+      parameters:
+        componentName: "Data Transfer MONITORING"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - MONITORING.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - MONITORING.csv"
+        targetUrl2: "s3://datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    S3 Load MONITORING_LASTUPDATE:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load MONITORING_LASTUPDATE"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - MONITORING_LASTUPDATE\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "MONITORING_LASTUPDATE"
+        loadColumns:
+        - "Tableschema"
+        - "Tablename"
+        - "Dateref"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    Data Transfer SCHEMA:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE SCHEMA"
+      parameters:
+        componentName: "Data Transfer SCHEMA"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - SCHEMA.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - SCHEMA.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer NUMBER_OF_DAYS:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE NUMBER_OF_DAYS"
+        unconditional:
+        - "Data Transfer SCHEMA"
+      parameters:
+        componentName: "Data Transfer NUMBER_OF_DAYS"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - NUMBER_OF_DAYS.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - NUMBER_OF_DAYS.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer REPORTING:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE REPORTING"
+        unconditional:
+        - "Data Transfer OBJECT_TO_LOAD"
+      parameters:
+        componentName: "Data Transfer REPORTING"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - REPORTING.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - REPORTING.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer NUMBER_OF_DAYS_SATURDAY:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE NUMBER_OF_DAYS_SATURDAY"
+        unconditional:
+        - "Data Transfer NUMBER_OF_DAYS"
+      parameters:
+        componentName: "Data Transfer NUMBER_OF_DAYS_SATURDAY"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - NUMBER_OF_DAYS_SATURDAY.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - NUMBER_OF_DAYS_SATURDAY.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer MONITORING_LASTUPDATE:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE MONITORING_LASTUPDATE"
+        unconditional:
+        - "Data Transfer MONITORING"
+      parameters:
+        componentName: "Data Transfer MONITORING_LASTUPDATE"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - MONITORING_LASTUPDATE.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - MONITORING_LASTUPDATE.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer OBJECT_TO_LOAD:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE OBJECT_TO_LOAD"
+        unconditional:
+        - "Data Transfer NUMBER_OF_DAYS_SATURDAY"
+      parameters:
+        componentName: "Data Transfer OBJECT_TO_LOAD"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - OBJECT_TO_LOAD.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - OBJECT_TO_LOAD.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    DELETE SCHEMA:
+      type: "sql-script"
+      parameters:
+        componentName: "DELETE SCHEMA"
+        sqlScript: |-
+          DELETE FROM SCHEMA.SCHEMA_EXTERNE
+          where "Tablecatalog" <> '${Database}'
+    S3 Load SCHEMA:
+      type: "s3-load"
+      transitions:
+        success:
+        - "DELETE SCHEMA"
+      parameters:
+        componentName: "S3 Load SCHEMA"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - SCHEMA\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SCHEMA"
+        targetTable: "SCHEMA_EXTERNE"
+        loadColumns:
+        - "Tablecatalog"
+        - "Tableschema"
+        - "Tablename"
+        - "Columnname"
+        - "Sfcolumnname"
+        - "Isnullable"
+        - "Datatype"
+        - "Datasize"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load REPORTING:
+      type: "s3-load"
+      transitions:
+        success:
+        - "DELETE REPORTING"
+      parameters:
+        componentName: "S3 Load REPORTING"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - REPORTING\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "R_REPORTING_INCREMENTAL"
+        loadColumns:
+        - "Environment"
+        - "Tableschema"
+        - "Reportingtablename"
+        - "Reportingquery"
+        - "Reportingkey"
+        - "Ignoreupdateonfields"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load MONITORING:
+      type: "s3-load"
+      transitions:
+        success:
+        - "DELETE MONITORING"
+      parameters:
+        componentName: "S3 Load MONITORING"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - MONITORING\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SCHEMA"
+        targetTable: "MONITORING_TABLE_CONFIG"
+        loadColumns:
+        - "ID"
+        - "SCHEMA_NAME"
+        - "TABLE_NAME"
+        - "DATE_NAME"
+        - "DATE_TYPE"
+        - "ALL_ROWS_MONITORED"
+        - "NB_HISTORIC_DAYS_TO_COMPARE"
+        - "NB_HISTORIC_DAYS_TO_UPDATE"
+        - "THRESHOLD"
+        - "IS_ENABLE"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load NUMBER_OF_DAYS_SATURDAY:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load NUMBER_OF_DAYS_SATURDAY"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        storageIntegration: ""
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - NUMBER_OF_DAYS_SATURDAY\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "WORK"
+        targetTable: "STG_NUMBER_OF_DAYS_SATURDAY"
+        loadColumns:
+        - "Tablename"
+        - "Numberofdays"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load OBJECT_TO_LOAD:
+      type: "s3-load"
+      transitions:
+        success:
+        - "DELETE OBJECT_TO_LOAD"
+      parameters:
+        componentName: "S3 Load OBJECT_TO_LOAD"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - OBJECT_TO_LOAD\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "OBJECT_TO_LOAD"
+        loadColumns:
+        - "TABLE_NAME_JOHNFORCE"
+        - "TABLE_NAME_SNOWFLAKE"
+        - "ORDER_TO_LOAD"
+        - "SELECT_PART"
+        - "WHERE_PART"
+        - "TRANSFORM_PART"
+        - "GROUP_NUM"
+        - "IS_ENABLE"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    DELETE MONITORING:
+      type: "sql-script"
+      parameters:
+        componentName: "DELETE MONITORING"
+        sqlScript: |-
+          DELETE FROM SCHEMA.MONITORING_TABLE_CONFIG
+          where "IS_ENABLE" <> 'yes'
+    S3 Load NUMBER_OF_DAYS:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load NUMBER_OF_DAYS"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - NUMBER_OF_DAYS\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "WORK"
+        targetTable: "STG_NUMBER_OF_DAYS"
+        loadColumns:
+        - "Tablename"
+        - "Numberofdays"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    DELETE OBJECT_TO_LOAD:
+      type: "sql-script"
+      parameters:
+        componentName: "DELETE OBJECT_TO_LOAD"
+        sqlScript: |-
+          DELETE FROM STG.OBJECT_TO_LOAD
+          where not IS_ENABLE
+          ;
+
+          INSERT OVERWRITE INTO STG.OBJECT_TO_LOAD
+          select *
+          from STG.OBJECT_TO_LOAD
+          order by ORDER_TO_LOAD
+    DELETE REPORTING:
+      type: "sql-script"
+      parameters:
+        componentName: "DELETE REPORTING"
+        sqlScript: |-
+          DELETE FROM STG.R_REPORTING_INCREMENTAL
+          where "Environment" <> '${ENVIRONMENT_TYPE}'
+    CREATE TABLE MONITORING:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load MONITORING"
+      parameters:
+        componentName: "CREATE TABLE MONITORING"
+        sqlScript: "CREATE OR REPLACE TABLE SCHEMA.MONITORING_TABLE_CONFIG\n(\nID\t\
+          NUMERIC,\nSCHEMA_NAME\tVARCHAR,\nTABLE_NAME\tVARCHAR,\nDATE_NAME\tVARCHAR,\n\
+          DATE_TYPE\tVARCHAR,\nALL_ROWS_MONITORED\tVARCHAR,\nNB_HISTORIC_DAYS_TO_COMPARE\t\
+          NUMERIC,\nNB_HISTORIC_DAYS_TO_UPDATE\tNUMERIC,\nTHRESHOLD\tNUMERIC,\nIS_ENABLE\t\
+          VARCHAR\n)"
+    CREATE TABLE MONITORING_LASTUPDATE:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load MONITORING_LASTUPDATE"
+      parameters:
+        componentName: "CREATE TABLE MONITORING_LASTUPDATE"
+        sqlScript: "CREATE OR REPLACE TABLE STG.MONITORING_LASTUPDATE\n(\n\"Tableschema\"\
+          \tVARCHAR,\n\"Tablename\"\tVARCHAR,\n\"Dateref\"\tVARCHAR\n)\n\n"
+    CREATE TABLE OBJECT_TO_LOAD:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load OBJECT_TO_LOAD"
+      parameters:
+        componentName: "CREATE TABLE OBJECT_TO_LOAD"
+        sqlScript: "CREATE OR REPLACE TABLE STG.OBJECT_TO_LOAD\n(\nTABLE_NAME_JOHNFORCE\t\
+          VARCHAR,\nTABLE_NAME_SNOWFLAKE\tVARCHAR,\nORDER_TO_LOAD\tNUMERIC,\nSELECT_PART\t\
+          VARCHAR,\nWHERE_PART\tVARCHAR,\nTRANSFORM_PART\tVARCHAR,\nGROUP_NUM\tNUMERIC,\n\
+          IS_ENABLE\tBOOLEAN\n)\n"
+    CREATE TABLE REPORTING:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load REPORTING"
+      parameters:
+        componentName: "CREATE TABLE REPORTING"
+        sqlScript: "CREATE OR REPLACE TABLE STG.R_REPORTING_INCREMENTAL\n(\n\"Environment\"\
+          \tVARCHAR,\n\"Tableschema\"\tVARCHAR,\n\"Reportingtablename\"\tVARCHAR,\n\
+          \"Reportingquery\"\tVARCHAR,\n\"Reportingkey\"\tVARCHAR,\n\"Ignoreupdateonfields\"\
+          \tVARCHAR\n)"
+    CREATE TABLE NUMBER_OF_DAYS:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load NUMBER_OF_DAYS"
+      parameters:
+        componentName: "CREATE TABLE NUMBER_OF_DAYS"
+        sqlScript: "CREATE OR REPLACE TABLE WORK.STG_NUMBER_OF_DAYS\n(\n\"Tablename\"\
+          \tVARCHAR,\n\"Numberofdays\"\tNUMERIC\n)"
+    CREATE TABLE NUMBER_OF_DAYS_SATURDAY:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load NUMBER_OF_DAYS_SATURDAY"
+      parameters:
+        componentName: "CREATE TABLE NUMBER_OF_DAYS_SATURDAY"
+        sqlScript: "CREATE OR REPLACE TABLE WORK.STG_NUMBER_OF_DAYS_SATURDAY\n(\n\"\
+          Tablename\"\tVARCHAR,\n\"Numberofdays\"\tNUMERIC\n)"
+    Start 0:
+      type: "start"
+      transitions:
+        unconditional:
+        - "Data Transfer VIEWS"
+      parameters:
+        componentName: "Start 0"
+    CREATE TABLE SCHEMA:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load SCHEMA"
+      parameters:
+        componentName: "CREATE TABLE SCHEMA"
+        sqlScript: "CREATE OR REPLACE TABLE SCHEMA.SCHEMA_EXTERNE\n(\n\"Tablecatalog\"\
+          \tVARCHAR,\n\"Tableschema\"\tVARCHAR,\n\"Tablename\"\tVARCHAR,\n\"Columnname\"\
+          \tVARCHAR,\n\"Sfcolumnname\"\tVARCHAR,\n\"Isnullable\"\tVARCHAR,\n\"Datatype\"\
+          \tVARCHAR,\n\"Datasize\"\tNUMERIC\n)"
+    CREATE TABLE VIEWS:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load VIEWS"
+      parameters:
+        componentName: "CREATE TABLE VIEWS"
+        sqlScript: "CREATE OR REPLACE TABLE SCHEMA.VIEWS\n(\n\"Environment\"\tVARCHAR,\n\
+          \"Tableschema\"\tVARCHAR,\n\"Vieworderbyid\"\tNUMERIC,\n\"Viewname\"\tVARCHAR,\n\
+          \"Viewquery\"\tVARCHAR\n)"
+    Data Transfer VIEWS:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE VIEWS"
+      parameters:
+        componentName: "Data Transfer VIEWS"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Schema/ODS_External_Schema - VIEWS.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "ODS_External_Schema - VIEWS.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    DELETE VIEWS:
+      type: "sql-script"
+      parameters:
+        componentName: "DELETE VIEWS"
+        sqlScript: |-
+          DELETE FROM SCHEMA.VIEWS
+          where "Environment" <> '${ENVIRONMENT_TYPE}'
+          ;
+
+          INSERT OVERWRITE INTO SCHEMA.VIEWS
+          select *
+          from SCHEMA.VIEWS
+          order by "Vieworderbyid"
+    S3 Load VIEWS:
+      type: "s3-load"
+      transitions:
+        success:
+        - "DELETE VIEWS"
+      parameters:
+        componentName: "S3 Load VIEWS"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*ODS_External_Schema - VIEWS\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "SCHEMA"
+        targetTable: "VIEWS"
+        loadColumns:
+        - "Environment"
+        - "Tableschema"
+        - "Vieworderbyid"
+        - "Viewname"
+        - "Viewquery"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: "ISO88591"
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    CREATE TABLE OPENING_HOURS:
+      type: "sql-script"
+      parameters:
+        componentName: "CREATE TABLE OPENING_HOURS"
+        sqlScript: "CREATE OR REPLACE TABLE STG.OPENING_HOURS\n(\n\"Zone\"\tVARCHAR,\n\
+          \"Accountid\"\tVARCHAR,\n\"Accountname\"\tVARCHAR,\n\"Entitlementname\"\t\
+          VARCHAR,\n\"Entitlementnumber\"\tVARCHAR,\n\"Entitlementid\"\tVARCHAR,\n\
+          \"Openingweekschema\"\tVARCHAR,\n\"Openingweekschemalabel\"\tVARCHAR,\n\"\
+          Openinghour\"\tVARCHAR,\n\"Closinghour\"\tVARCHAR\n)"
+    Data Transfer OPENING_HOURS:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE OPENING_HOURS"
+        unconditional:
+        - "Data Transfer COMMISSION_RULES"
+      parameters:
+        componentName: "Data Transfer OPENING_HOURS"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Other/Opening_Hours - OPENING_HOURS.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "Opening_Hours - OPENING_HOURS.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer COMMISSION_RULES:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE COMMISSION_RULES"
+        unconditional:
+        - "Data Transfer SURVEY_REF"
+      parameters:
+        componentName: "Data Transfer COMMISSION_RULES"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Other/Commission_rules - COMMISSION_RULES.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "Commission_rules - COMMISSION_RULES.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    S3 Load OPENING_HOURS:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load OPENING_HOURS"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*Opening_Hours - OPENING_HOURS\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "OPENING_HOURS"
+        loadColumns:
+        - "Zone"
+        - "Accountid"
+        - "Accountname"
+        - "Entitlementname"
+        - "Entitlementnumber"
+        - "Entitlementid"
+        - "Openingweekschema"
+        - "Openingweekschemalabel"
+        - "Openinghour"
+        - "Closinghour"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load COMMISSION_RULES:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load COMMISSION_RULES"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*Commission_rules - COMMISSION_RULES\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "STG"
+        targetTable: "COMMISSION_RULES"
+        loadColumns:
+        - "Zone"
+        - "Accountid"
+        - "Accountname"
+        - "Vendorid"
+        - "Vendorname"
+        - "Quantityfield"
+        - "Amountfield"
+        - "Amountcurrency"
+        - "Commissionquantity"
+        - "Commissionamountstep1"
+        - "Commissionamountstep2"
+        - "Commissionamountstep3"
+        - "Commissionratestep1"
+        - "Commissionratestep2"
+        - "Commissionratestep3"
+        - "Commissionratestep1ht"
+        - "Commissionratestep2ht"
+        - "Commissionratestep3ht"
+        - "Tvarate"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: "\""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: ""
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    CREATE TABLE COMMISSION_RULES:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load COMMISSION_RULES"
+      parameters:
+        componentName: "CREATE TABLE COMMISSION_RULES"
+        sqlScript: "CREATE OR REPLACE TABLE STG.COMMISSION_RULES\n(\n\"Zone\"\tVARCHAR,\n\
+          \"Accountid\"\tVARCHAR,\n\"Accountname\"\tVARCHAR,\n\"Vendorid\"\tVARCHAR,\n\
+          \"Vendorname\"\tVARCHAR,\n\"Quantityfield\"\tVARCHAR,\n\"Amountfield\"\t\
+          VARCHAR,\n\"Amountcurrency\"\tVARCHAR,\n\"Commissionquantity\"\tVARCHAR,\n\
+          \"Commissionamountstep1\"\tVARCHAR,\n\"Commissionamountstep2\"\tVARCHAR,\n\
+          \"Commissionamountstep3\"\tVARCHAR,\n\"Commissionratestep1\"\tVARCHAR,\n\
+          \"Commissionratestep2\"\tVARCHAR,\n\"Commissionratestep3\"\tVARCHAR,\n\"\
+          Commissionratestep1ht\"\tVARCHAR,\n\"Commissionratestep2ht\"\tVARCHAR,\n\
+          \"Commissionratestep3ht\"\tVARCHAR,\n\"Tvarate\"\tVARCHAR\n)"
+    CREATE TABLE SURVEY_REF:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load SURVEY_REF"
+      parameters:
+        componentName: "CREATE TABLE SURVEY_REF"
+        sqlScript: "CREATE OR REPLACE TABLE ODS.SURVEY_REFERENCE_TABLE\n(\n\"INTERNAL_ID\"\
+          \tNUMERIC,\n\"SOURCE\"\tVARCHAR,\n\"SURVEYNAME\"\tVARCHAR,\n\"LAST_MANDATORY_QUESTION\"\
+          \tVARCHAR,\n\"CORE_QUESTION\"\tVARCHAR,\n\"QUESTION_TITLE\"\tVARCHAR,\n\"\
+          QUESTION_ITEM\"\tVARCHAR,\n\"ANSWER_VALUE\"\tVARCHAR,\n\"QUESTION_ID\"\t\
+          VARCHAR,\n\"CORE_QUESTION_LABEL\"\tVARCHAR,\n\"CORE_ANSWER\"\tVARCHAR,\n\
+          \"CORE_QUESTION_TOPIC\"\tVARCHAR,\n\"ACTIVITY_LABEL\" VARCHAR,\n\"ANSWER_REF_ID\"\
+          \ VARCHAR\n)"
+    Data Transfer SURVEY_REF:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE SURVEY_REF"
+        unconditional:
+        - "Data Transfer TALKDESK_BADNUMBER"
+      parameters:
+        componentName: "Data Transfer SURVEY_REF"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Other/SURVEY_REFERENCE_TABLE.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "SURVEY_REFERENCE_TABLE.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    Data Transfer TALKDESK_BADNUMBER:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE TALKDESK_BADNUMBER"
+        unconditional:
+        - "Data Transfer REF_SURVEYS_URLS"
+      parameters:
+        componentName: "Data Transfer TALKDESK_BADNUMBER"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Telephony/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Telephony/Shared Documents/11\
+          \ - SHARED FOLDER - Data Team/phone_number_to_reject.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "TALKDESK_BADNUMBER.csv"
+        targetUrl2: "s3://jp-prod-datachain/Talkdesk/phone_number_to_reject/"
+        accessControlListOptions: ""
+        encryption: "None"
+    S3 Load SURVEY_REF:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load SURVEY_REF"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*SURVEY_REFERENCE_TABLE\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "ODS"
+        targetTable: "SURVEY_REFERENCE_TABLE"
+        loadColumns:
+        - "INTERNAL_ID"
+        - "SOURCE"
+        - "SURVEYNAME"
+        - "LAST_MANDATORY_QUESTION"
+        - "CORE_QUESTION"
+        - "QUESTION_TITLE"
+        - "QUESTION_ITEM"
+        - "ANSWER_VALUE"
+        - "QUESTION_ID"
+        - "CORE_QUESTION_LABEL"
+        - "CORE_ANSWER"
+        - "CORE_QUESTION_TOPIC"
+        - "ACTIVITY_LABEL"
+        - "ANSWER_REF_ID"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: ""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: "WINDOWS1252"
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    S3 Load TALKDESK_BADNUMBER:
+      type: "s3-load"
+      transitions:
+        success:
+        - "INSERT TALKDESK_BADNUMBER"
+      parameters:
+        componentName: "S3 Load TALKDESK_BADNUMBER"
+        stage: "[Custom]"
+        authentication: "Credentials"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Talkdesk/phone_number_to_reject/"
+        pattern: ".*TALKDESK_BADNUMBER\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "AUDIT"
+        targetTable: "TALKDESK_BADNUMBER"
+        loadColumns:
+        - "PHONE_NUMBER"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: ""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: "UTF8"
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    CREATE TABLE TALKDESK_BADNUMBER:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load TALKDESK_BADNUMBER"
+      parameters:
+        componentName: "CREATE TABLE TALKDESK_BADNUMBER"
+        sqlScript: "CREATE OR REPLACE TABLE AUDIT.TALKDESK_BADNUMBER\n(\nPHONE_NUMBER\t\
+          STRING\n)"
+    Data Transfer REF_SURVEYS_URLS:
+      type: "data-transfer-object"
+      transitions:
+        success:
+        - "CREATE TABLE REF_SURVEYS_URLS"
+      parameters:
+        componentName: "Data Transfer REF_SURVEYS_URLS"
+        sourceType: "Microsoft SharePoint"
+        serviceType: "SOAP"
+        url: "https://lesconcierges.sharepoint.com/sites/Data-Dep/"
+        user: "${OUTLOOK_DATA}"
+        password: "OutlookData"
+        sharepointEdition: "SharePoint Online"
+        connectionOptions:
+        fileType: "Document"
+        library: "Documents"
+        fileUrl: "https://lesconcierges.sharepoint.com/sites/Data-Dep/Shared Documents/Data\
+          \ Chain/Matillion/PROD/Other/EMAIL_REFERENTIEL_SURVEYS_URLS.csv"
+        unpackZipFile: "No"
+        targetType: "S3"
+        gzipData: "No"
+        targetObjectName: "EMAIL_REF_SURVEYS_URLS.csv"
+        targetUrl2: "s3://jp-prod-datachain/Schema/"
+        accessControlListOptions: ""
+        encryption: "None"
+    INSERT TALKDESK_BADNUMBER:
+      type: "sql-script"
+      parameters:
+        componentName: "INSERT TALKDESK_BADNUMBER"
+        sqlScript: |+
+          INSERT OVERWRITE INTO AUDIT.TALKDESK_BADNUMBER
+
+          SELECT ltrim(PHONE_NUMBER, 'num_')
+          FROM AUDIT.TALKDESK_BADNUMBER
+
+          UNION
+
+          SELECT ltrim(PHONE_NUMBER, 'num_+')
+          FROM AUDIT.TALKDESK_BADNUMBER
+
+          UNION
+
+          SELECT '0' || ltrim(PHONE_NUMBER, 'num_+33')
+          FROM AUDIT.TALKDESK_BADNUMBER
+
+    S3 Load REF_SURVEYS_URLS:
+      type: "s3-load"
+      parameters:
+        componentName: "S3 Load REF_SURVEYS_URLS"
+        stage: "[Custom]"
+        s3ObjectPrefix: "s3://jp-prod-datachain/Schema/"
+        pattern: ".*EMAIL_REF_SURVEYS_URLS\\.csv"
+        encryption: "None"
+        warehouse: "[Environment Default]"
+        database: "[Environment Default]"
+        schema: "ODS"
+        targetTable: "SURVEY_EMAIL_URLS_REF"
+        loadColumns:
+        - "SURVEY_TYPE"
+        - "SURVEY_URL"
+        - "SURVEY_NAME"
+        - "SURVEY_ACTIVITY_LABEL"
+        format: "[Custom]"
+        fileType: "CSV"
+        compression: "NONE"
+        recordDelimiter: ""
+        fieldDelimiter: ";"
+        skipHeader: "1"
+        skipBlankLines: "True"
+        dateFormat: ""
+        timeFormat: ""
+        timestampFormat: ""
+        escape: ""
+        escapeUnenclosedField: ""
+        trimSpace: "True"
+        fieldOptionallyEnclosed: ""
+        nullIf:
+        - - ""
+        errorOnColumnCountMismatch: "False"
+        emptyFieldAsNull: "True"
+        replaceInvalidCharacters: "False"
+        encodingType: "ISO88591"
+        onError: "Abort Statement"
+        sizeLimitB: ""
+        purgeFiles: "False"
+        truncateColumns: "False"
+        forceLoad: "False"
+    CREATE TABLE REF_SURVEYS_URLS:
+      type: "sql-script"
+      transitions:
+        success:
+        - "S3 Load REF_SURVEYS_URLS"
+      parameters:
+        componentName: "CREATE TABLE REF_SURVEYS_URLS"
+        sqlScript: "CREATE OR REPLACE TABLE ODS.SURVEY_EMAIL_URLS_REF\n(\n\"SURVEY_TYPE\"\
+          \tVARCHAR,\n\"SURVEY_URL\"\tVARCHAR,\n\"SURVEY_NAME\"\tVARCHAR,\n\"SURVEY_ACTIVITY_LABEL\"\
+          \t\tVARCHAR\n)"
+  variables:
+    v_filename_1:
+      metadata:
+        type: "TEXT"
+        description: ""
+        scope: "COPIED"
+        visibility: "PUBLIC"
+      defaultValue: ""
+design:
+  components:
+    Data Transfer MONITORING:
+      position:
+        x: -240
+        "y": 0
+      tempMetlId: 73648
+    S3 Load MONITORING_LASTUPDATE:
+      position:
+        x: 400
+        "y": -80
+      tempMetlId: 73649
+    Data Transfer SCHEMA:
+      position:
+        x: -240
+        "y": 400
+      tempMetlId: 73650
+    Data Transfer NUMBER_OF_DAYS:
+      position:
+        x: -240
+        "y": 320
+      tempMetlId: 73651
+    Data Transfer REPORTING:
+      position:
+        x: -240
+        "y": 80
+      tempMetlId: 73652
+    Data Transfer NUMBER_OF_DAYS_SATURDAY:
+      position:
+        x: -240
+        "y": 240
+      tempMetlId: 73653
+    Data Transfer MONITORING_LASTUPDATE:
+      position:
+        x: -240
+        "y": -80
+      tempMetlId: 73654
+    Data Transfer OBJECT_TO_LOAD:
+      position:
+        x: -240
+        "y": 160
+      tempMetlId: 73655
+    DELETE SCHEMA:
+      position:
+        x: 720
+        "y": 400
+      tempMetlId: 73656
+    S3 Load SCHEMA:
+      position:
+        x: 400
+        "y": 400
+      tempMetlId: 73657
+    S3 Load REPORTING:
+      position:
+        x: 400
+        "y": 80
+      tempMetlId: 73658
+    S3 Load MONITORING:
+      position:
+        x: 400
+        "y": 0
+      tempMetlId: 73659
+    S3 Load NUMBER_OF_DAYS_SATURDAY:
+      position:
+        x: 400
+        "y": 240
+      tempMetlId: 73660
+    S3 Load OBJECT_TO_LOAD:
+      position:
+        x: 400
+        "y": 160
+      tempMetlId: 73661
+    DELETE MONITORING:
+      position:
+        x: 720
+        "y": 0
+      tempMetlId: 73662
+    S3 Load NUMBER_OF_DAYS:
+      position:
+        x: 400
+        "y": 320
+      tempMetlId: 73663
+    DELETE OBJECT_TO_LOAD:
+      position:
+        x: 720
+        "y": 160
+      tempMetlId: 73664
+    DELETE REPORTING:
+      position:
+        x: 720
+        "y": 80
+      tempMetlId: 73665
+    CREATE TABLE MONITORING:
+      position:
+        x: 80
+        "y": 0
+      tempMetlId: 73666
+    CREATE TABLE MONITORING_LASTUPDATE:
+      position:
+        x: 80
+        "y": -80
+      tempMetlId: 73667
+    CREATE TABLE OBJECT_TO_LOAD:
+      position:
+        x: 80
+        "y": 160
+      tempMetlId: 73668
+    CREATE TABLE REPORTING:
+      position:
+        x: 80
+        "y": 80
+      tempMetlId: 73669
+    CREATE TABLE NUMBER_OF_DAYS:
+      position:
+        x: 80
+        "y": 320
+      tempMetlId: 73670
+    CREATE TABLE NUMBER_OF_DAYS_SATURDAY:
+      position:
+        x: 80
+        "y": 240
+      tempMetlId: 73671
+    Start 0:
+      position:
+        x: -600
+        "y": 370
+      tempMetlId: 73672
+    CREATE TABLE SCHEMA:
+      position:
+        x: 80
+        "y": 400
+      tempMetlId: 73673
+    CREATE TABLE VIEWS:
+      position:
+        x: 80
+        "y": 480
+      tempMetlId: 73674
+    Data Transfer VIEWS:
+      position:
+        x: -240
+        "y": 480
+      tempMetlId: 73675
+    DELETE VIEWS:
+      position:
+        x: 720
+        "y": 480
+      tempMetlId: 73676
+    S3 Load VIEWS:
+      position:
+        x: 390
+        "y": 480
+      tempMetlId: 73677
+    CREATE TABLE OPENING_HOURS:
+      position:
+        x: 80
+        "y": 560
+      tempMetlId: 73678
+    Data Transfer OPENING_HOURS:
+      position:
+        x: -240
+        "y": 560
+      tempMetlId: 73679
+    Data Transfer COMMISSION_RULES:
+      position:
+        x: -240
+        "y": 640
+      tempMetlId: 73680
+    S3 Load OPENING_HOURS:
+      position:
+        x: 400
+        "y": 560
+      tempMetlId: 73681
+    S3 Load COMMISSION_RULES:
+      position:
+        x: 400
+        "y": 640
+      tempMetlId: 73682
+    CREATE TABLE COMMISSION_RULES:
+      position:
+        x: 80
+        "y": 640
+      tempMetlId: 73683
+    CREATE TABLE SURVEY_REF:
+      position:
+        x: 80
+        "y": 720
+      tempMetlId: 73684
+    Data Transfer SURVEY_REF:
+      position:
+        x: -240
+        "y": 720
+      tempMetlId: 73685
+    Data Transfer TALKDESK_BADNUMBER:
+      position:
+        x: -240
+        "y": 800
+      tempMetlId: 73686
+    S3 Load SURVEY_REF:
+      position:
+        x: 400
+        "y": 720
+      tempMetlId: 73687
+    S3 Load TALKDESK_BADNUMBER:
+      position:
+        x: 400
+        "y": 800
+      tempMetlId: 73688
+    CREATE TABLE TALKDESK_BADNUMBER:
+      position:
+        x: 80
+        "y": 800
+      tempMetlId: 73689
+    Data Transfer REF_SURVEYS_URLS:
+      position:
+        x: -240
+        "y": 880
+      tempMetlId: 73690
+    INSERT TALKDESK_BADNUMBER:
+      position:
+        x: 640
+        "y": 800
+      tempMetlId: 73691
+    S3 Load REF_SURVEYS_URLS:
+      position:
+        x: 400
+        "y": 880
+      tempMetlId: 73692
+    CREATE TABLE REF_SURVEYS_URLS:
+      position:
+        x: 80
+        "y": 880
+      tempMetlId: 73693
